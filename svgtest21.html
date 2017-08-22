@@ -1,0 +1,563 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Untitled Document</title>
+
+
+<script type="text/javascript">
+function browserDetect(){
+var nVer = navigator.appVersion;
+var nAgt = navigator.userAgent;
+var browserName  = navigator.appName;
+var fullVersion  = ''+parseFloat(navigator.appVersion); 
+var majorVersion = parseInt(navigator.appVersion,10);
+var nameOffset,verOffset,ix;
+
+// In Opera, the true version is after "Opera" or after "Version"
+if ((verOffset=nAgt.indexOf("Opera"))!=-1) {
+ browserName = "Opera";
+ fullVersion = nAgt.substring(verOffset+6);
+ if ((verOffset=nAgt.indexOf("Version"))!=-1) 
+   fullVersion = nAgt.substring(verOffset+8);
+}
+// In MSIE, the true version is after "MSIE" in userAgent
+else if ((verOffset=nAgt.indexOf("MSIE"))!=-1) {
+ browserName = "Microsoft Internet Explorer";
+ fullVersion = nAgt.substring(verOffset+5);
+}
+// In Chrome, the true version is after "Chrome" 
+else if ((verOffset=nAgt.indexOf("Chrome"))!=-1) {
+ browserName = "Chrome";
+ fullVersion = nAgt.substring(verOffset+7);
+}
+// In Safari, the true version is after "Safari" or after "Version" 
+else if ((verOffset=nAgt.indexOf("Safari"))!=-1) {
+ browserName = "Safari";
+ fullVersion = nAgt.substring(verOffset+7);
+ if ((verOffset=nAgt.indexOf("Version"))!=-1) 
+   fullVersion = nAgt.substring(verOffset+8);
+}
+// In Firefox, the true version is after "Firefox" 
+else if ((verOffset=nAgt.indexOf("Firefox"))!=-1) {
+ browserName = "Firefox";
+ fullVersion = nAgt.substring(verOffset+8);
+}
+// In most other browsers, "name/version" is at the end of userAgent 
+else if ( (nameOffset=nAgt.lastIndexOf(' ')+1) < 
+          (verOffset=nAgt.lastIndexOf('/')) ) 
+{
+ browserName = nAgt.substring(nameOffset,verOffset);
+ fullVersion = nAgt.substring(verOffset+1);
+ if (browserName.toLowerCase()==browserName.toUpperCase()) {
+  browserName = navigator.appName;
+ }
+}
+// trim the fullVersion string at semicolon/space if present
+if ((ix=fullVersion.indexOf(";"))!=-1)
+   fullVersion=fullVersion.substring(0,ix);
+if ((ix=fullVersion.indexOf(" "))!=-1)
+   fullVersion=fullVersion.substring(0,ix);
+
+majorVersion = parseInt(''+fullVersion,10);
+if (isNaN(majorVersion)) {
+ fullVersion  = ''+parseFloat(navigator.appVersion); 
+ majorVersion = parseInt(navigator.appVersion,10);
+}
+if (browserName=="Microsoft Internet Explorer" && fullVersion<9){
+	return "VML";
+} else {
+	return "SVG";
+}
+}
+function buidPieGraph(){
+	//small slice values
+	var prcntVals=[10.0,8.0,6.0,4.0,2.0,10.0,9.0,8.0,7.0,6.0,5.0,4.0,3.0,2.0,1.0,4.0,3.0,2.0,6.0];
+	var hldngsVals=[30.0,30.0,30.0,30.0,30.0,55.0,55.0,55.0,55.0,55.0,55.0,55.0,55.0,55.0,55.0,9.0,9.0,9.0,6.0];
+	var allocationValue=["1000000.00","800000.00","600000.00","400000.00","200000.00","1000000.00","900000.00","800000.00","700000.00","600000.00","500000.00","400000.00","300000.00","200000.00","100000.00","400000.00","300000.00","2000000.00","600000.00"];
+	var allctn=["equity","equity","equity","equity","equity","fixedincome","fixedincome","fixedincome","fixedincome","fixedincome","fixedincome","fixedincome","fixedincome","fixedincome","fixedincome","cash","cash","cash","alternative"];
+	var allctnStroke=["076cba","076cba","076cba","076cba","076cba","f46b2d","f46b2d","f46b2d","f46b2d","f46b2d","f46b2d","f46b2d","f46b2d","f46b2d","f46b2d","4b962b","4b962b","4b962b","d6b553"];
+	var allocationType=["Large Cap","Mid Cap","Small Cap","International","Unclassified","Treasury","Corporate","Mortgages","Agency","Municipal","High Yield","Mutual Funds","ETF","Other","Other Cash","Income","Principal","Other","Alternative"]
+	var vmlFill=["41abdb","41abdb","41abdb","41abdb","41abdb","f99b51","f99b51","f99b51","f99b51","f99b51","f99b51","f99b51","f99b51","f99b51","f99b51","8ac26b","8ac26b","8ac26b","ffdf7c"];;
+	//small slice values END
+	//large slice values
+	var bprcntVals=[30.0,55.0,9.0,6.0];
+	var bAllocationValue=["3000000.00","5500000.00","900000.00","600000.00"];
+	var ballctn=["bequity","bfixedincome","bcash","balternative"];
+	var ballctnStroke=["076cba","f46b2d","4b962b","d6b553"];
+	var bAllocationType=["Equity","Fixed Income","Cash","Alternative"];
+	var bvmlFill=["1296d4","f68026","6bb345","ebcb68"];
+	//large slice values END
+	
+	
+	
+	
+	if(browserDetect()=="SVG"){
+		var svgPie = document.getElementById("pieGraph");
+		var newPie = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+		var newDef = document.createElementNS("http://www.w3.org/2000/svg", "defs");
+		newPie.setAttributeNS(null,"id","vctrGraph");
+		newPie.setAttributeNS(null,"width",590);
+		newPie.setAttributeNS(null,"height",400);
+		newPie.appendChild(newDef);
+		svgPie.appendChild(newPie);
+		//create small slices
+		var sbgn=0;
+		for(crtSlc=0;crtSlc<prcntVals.length;crtSlc++){
+			if(prcntVals[crtSlc]!=0){
+				buildSVGPieSlice(allctn[crtSlc]+crtSlc,allctn[crtSlc]+".jpg",sbgn,sbgn+prcntVals[crtSlc],allctn[crtSlc]+crtSlc+"ID",allctnStroke[crtSlc],allocationType[crtSlc],formatMoney(allocationValue[crtSlc]),0.95,10,"b"+allctn[crtSlc]+"IDData","small");
+				sbgn+=prcntVals[crtSlc];
+				createHoldingInfo(allctn[crtSlc]+"IDSub","Hsmall",formatHoldings(prcntVals[crtSlc],hldngsVals[crtSlc])+"% "+allocationType[crtSlc],allctn[crtSlc]+crtSlc+"IDInfo",allctn[crtSlc]+crtSlc+"ID","small");
+				createHoldingInfo(allctn[crtSlc]+"IDHldng","Hsmall",prcntVals[crtSlc]+"% "+allocationType[crtSlc],allctn[crtSlc]+crtSlc+"IDHolding",allctn[crtSlc]+crtSlc+"ID","small");
+			}
+		};
+		//create small slices END
+		//create big slices
+		var bbgn=0;
+		for(bSlc=0;bSlc<bprcntVals.length;bSlc++){
+			if(bprcntVals[bSlc]!=0){
+				if(prcntVals[crtSlc]!=0){
+					buildSVGPieSlice(ballctn[bSlc]+bSlc,ballctn[bSlc]+".jpg",bbgn,bbgn+bprcntVals[bSlc],ballctn[bSlc]+bSlc+"ID",ballctnStroke[bSlc],bAllocationType[bSlc],formatMoney(bAllocationValue[bSlc]),0.5,100,ballctn[bSlc]+"IDData","big");
+					bbgn+=bprcntVals[bSlc];
+					createHoldingInfo(ballctn[bSlc]+"IDData","Htop",bprcntVals[bSlc]+"% "+bAllocationType[bSlc],ballctn[bSlc]+bSlc+"IDPcnt",ballctn[bSlc]+bSlc+"ID","big");
+					createHoldingInfo(ballctn[bSlc]+"IDData","Hmid",formatMoney(bAllocationValue[bSlc]),ballctn[bSlc]+bSlc+"IDMoney",ballctn[bSlc]+bSlc+"ID","big");
+				};
+			};
+		};
+		//create big slices END
+	} else if (browserDetect()=="VML"){
+		var vmlPie=document.getElementById("pieGraph");
+			var sliceMaster="";
+			//create small slices
+			var sbgn=0;
+			for(crtSlc=0;crtSlc<prcntVals.length;crtSlc++){
+				sliceMaster+=buildVMLPieSlice(sbgn,sbgn+prcntVals[crtSlc],10,380,allctn[crtSlc]+crtSlc+"ID",allctnStroke[crtSlc],vmlFill[crtSlc],allocationType[crtSlc],allocationValue[crtSlc],"b"+allctn[crtSlc]+"IDData","small");
+				sbgn+=prcntVals[crtSlc];
+				createHoldingInfo(allctn[crtSlc]+"IDSub","Hsmall",formatHoldings(prcntVals[crtSlc],hldngsVals[crtSlc])+"% "+allocationType[crtSlc],allctn[crtSlc]+crtSlc+"IDInfo",allctn[crtSlc]+crtSlc+"ID","small");
+				createHoldingInfo(allctn[crtSlc]+"IDHldng","Hsmall",prcntVals[crtSlc]+"% "+allocationType[crtSlc],allctn[crtSlc]+crtSlc+"IDHolding",allctn[crtSlc]+crtSlc+"ID","small");
+			};
+			//create small slices END
+			//create big slices
+			var bbgn=0;
+			for(bSlc=0;bSlc<bprcntVals.length;bSlc++){
+				if(bprcntVals[bSlc]!=0){
+					sliceMaster+=buildVMLPieSlice(bbgn,bbgn+bprcntVals[bSlc],100,200,ballctn[bSlc]+bSlc+"ID",ballctnStroke[bSlc],bvmlFill[bSlc],bAllocationType[bSlc],bAllocationValue[bSlc],ballctn[bSlc]+"IDData","big");
+					bbgn+=bprcntVals[bSlc];
+					createHoldingInfo(ballctn[bSlc]+"IDData","Htop",bprcntVals[bSlc]+"% "+bAllocationType[bSlc],ballctn[bSlc]+bSlc+"IDPcnt",ballctn[bSlc]+bSlc+"ID","big");
+					createHoldingInfo(ballctn[bSlc]+"IDData","Hmid",formatMoney(bAllocationValue[bSlc]),ballctn[bSlc]+bSlc+"IDMoney",ballctn[bSlc]+bSlc+"ID","big");
+				}
+			};
+			//create big slices END
+			vmlPie.innerHTML=sliceMaster;
+	};
+};
+function buildVMLPieSlice(strtPrcnt,endPrcnt,mrgn,rad,id,brdrColor,fil,dta,val,mstr,bs){
+	var bPprcnt=strtPrcnt*3.6;
+	var ePrcnt=endPrcnt*3.6;
+	var xCordFrom=Math.round(200+(Math.sin(bPprcnt*Math.PI/180)*rad));
+	var yCordFrom=Math.round(200-(Math.cos(bPprcnt*Math.PI/180)*rad));
+	var xCordTo=Math.round(200+(Math.sin(ePrcnt*Math.PI/180)*rad));
+	var yCordTo=Math.round(200-(Math.cos(ePrcnt*Math.PI/180)*rad));
+	var newSlice="";
+	newSlice+="<v:shape ";
+	newSlice+="id='"+id+"' ";
+	newSlice+="style='POSITION:Absolute; MARGIN:"+mrgn+"px; WIDTH:"+rad+"px; HEIGHT:"+rad+"px; DISPLAY:inline-block; CURSOR: pointer' "
+	newSlice+="xmlns='urn:schemas-microsoft-com:vml' ";
+	newSlice+="onclick=\"slceActVML(this.id,'"+mstr+"','"+bs+"');\" ";
+	newSlice+="onmouseover=\"slceOvrVML(this.id,'"+brdrColor+"');\" ";
+	newSlice+="onmouseout=\"slceOutVML(this.id,'"+fil+"');\" ";
+	newSlice+="title='"+dta+" "+formatMoney(val)+"' "
+	newSlice+="alt='#"+fil+"' ";
+	newSlice+="coordsize='400,400' ";
+	newSlice+="strokecolor='#"+brdrColor+"' ";
+	newSlice+="strokeweight='2' ";
+	newSlice+="path='m200,200 wa0,0,400,400,"+xCordFrom+","+yCordFrom+","+xCordTo+","+yCordTo+" x e' ";
+	newSlice+="fillcolor='#"+fil+"' ";
+	newSlice+="/>";
+	return(newSlice);
+};
+function buildSVGPieSlice(styleID,styleImage,strtPrcnt,endPrcnt,id,brdrColor,dta,val,TFScale,TFPos,mstr,bs){
+	//builds slice style
+	var svgPieSyleDef = document.getElementsByTagName("defs")[0];
+	var newPattern = document.createElementNS("http://www.w3.org/2000/svg", "pattern");
+	newPattern.setAttributeNS(null,"id",styleID);
+	newPattern.setAttributeNS(null,"patternUnits","userSpaceOnUse");
+	newPattern.setAttributeNS(null,"width",400);
+	newPattern.setAttributeNS(null,"height",400);
+	svgPieSyleDef.appendChild(newPattern);
+	var newImg = document.createElementNS("http://www.w3.org/2000/svg", "image");
+	newImg.setAttributeNS(null,"x",0);
+	newImg.setAttributeNS(null,"y",0);
+	newImg.setAttributeNS(null,"width",400);
+	newImg.setAttributeNS(null,"height",400);
+	newImg.setAttributeNS("http://www.w3.org/1999/xlink","xlink:href",styleImage);
+	newPattern.appendChild(newImg);
+	//builds slice geomitry
+	var svgPie = document.getElementsByTagName("svg")[0];
+	var newSlice = document.createElementNS("http://www.w3.org/2000/svg", "path");
+	var bPprcnt=strtPrcnt*3.6;
+	var ePrcnt=endPrcnt*3.6;
+	if((ePrcnt-bPprcnt)>=180){
+		oneEightyCheck=1;
+	}else{
+		oneEightyCheck=0;
+	};
+	//Calculous resting state pie slice
+	var xCordFrom=200+(Math.sin(bPprcnt*Math.PI/180)*200);
+	var yCordFrom=200-(Math.cos(bPprcnt*Math.PI/180)*200);
+	var xCordTo=200+(Math.sin(ePrcnt*Math.PI/180)*200);
+	var yCordTo=200-(Math.cos(ePrcnt*Math.PI/180)*200);
+	newSlice.setAttributeNS(null,"id",id);
+	newSlice.setAttributeNS(null,"d","M200,200 L"+xCordFrom+","+yCordFrom+" A200,200,0,"+oneEightyCheck+",1,"+xCordTo+","+yCordTo+" z");
+	newSlice.setAttributeNS(null,"fill","url(#"+styleID+")");
+	newSlice.setAttributeNS(null,"stroke","#"+brdrColor+"");
+	newSlice.setAttributeNS(null,"style","stroke-width:2;cursor:pointer;");
+	newSlice.setAttributeNS(null,"title",""+dta+" "+val+"");
+	newSlice.setAttributeNS(null,"transform","translate("+TFPos+","+TFPos+"),scale("+TFScale+")");
+	svgPie.appendChild(newSlice);
+	//creates functionality
+	newSlice.setAttributeNS(null,"onmouseover","slceOvr(this.id,'"+brdrColor+"');");
+	newSlice.setAttributeNS(null,"onclick","slceActv(this.id,'"+mstr+"','"+bs+"');");
+	newSlice.setAttributeNS(null,"onmouseout","slceOut(this.id,'url(#"+styleID+")');");
+};
+var prevAni="";
+function slceActVML(sid,mstr,bs){
+	if(prevAni==""){
+		if(sid.charAt(0)=="b"){
+			VMLAniBig(sid,100,200,10,20);
+		} else {
+			VMLAniBig(sid,10,380,1,2);
+		};
+		setInfo(sid,mstr,bs);
+		prevAni=sid;
+	} else if(prevAni==sid){
+		if(sid.charAt(0)=="b"){
+			VMLAniSmall(sid,0,400,10,20,200)
+		} else {
+			VMLAniSmall(sid,0,400,1,2,380)
+		};
+		resetInfo();
+		prevAni="";
+	} else {
+		if(sid.charAt(0)=="b"){
+			VMLAniBig(sid,100,200,10,20);
+		} else {
+			VMLAniBig(sid,10,380,1,2);
+		};
+		if(prevAni.charAt(0)=="b"){
+			VMLAniSmall(prevAni,0,400,10,20,200)
+		} else {
+			VMLAniSmall(prevAni,0,400,1,2,380)
+		};
+		setInfo(sid,mstr,bs);
+		prevAni=sid;
+	};
+};
+function VMLAniBig(objct,mrgn,wihe,mrate,whrate){
+	var mar=mrgn;
+	var wh=wihe;
+	var vmlAni=setInterval(function(){
+		mar-=mrate;
+		wh+=whrate;
+		document.getElementById(objct).style.margin=mar+"px";
+		document.getElementById(objct).style.width=wh+"px";
+		document.getElementById(objct).style.height=wh+"px";
+		if (mar<=0){
+			clearInterval(vmlAni);
+		};
+	}, 10);
+};
+function VMLAniSmall(objct,mrgn,wihe,mrate,whrate,finalHW){
+	var mar=mrgn;
+	var wh=wihe;
+	var vmlAniS=setInterval(function(){
+		mar+=mrate;
+		wh-=whrate;
+		document.getElementById(objct).style.margin=mar+"px";
+		document.getElementById(objct).style.width=wh+"px";
+		document.getElementById(objct).style.height=wh+"px";
+		if (wh<=finalHW){
+			clearInterval(vmlAniS);
+		};
+	}, 10);
+};
+function SVGAniBig(objct,sz,pos,szRate,posRate){
+	var scl=sz;
+	var trans=pos;
+	var svgAni=setInterval(function(){
+		scl+=szRate;
+		trans-=posRate;
+		document.getElementById(objct).setAttributeNS(null,"transform","translate("+trans+","+trans+"),scale("+scl+")");
+		if (scl>=1){
+			clearInterval(svgAni);
+		};
+	}, 10);
+};
+function SVGAniSmall(objct,sz,pos,szRate,posRate,BorS){
+	var scl=sz;
+	var trans=pos;
+	var svgAniS=setInterval(function(){
+		scl-=szRate;
+		trans+=posRate;
+		document.getElementById(objct).setAttributeNS(null,"transform","translate("+trans+","+trans+"),scale("+scl+")");
+		if (scl<=BorS){
+			clearInterval(svgAniS);
+		};
+	}, 10);
+};
+function slceActv(ids,mstr,bs){
+	if(prevAni==""){
+		if(ids.charAt(0)=="b"){
+			SVGAniBig(ids,0.5,100,0.05,10);
+		} else {
+			SVGAniBig(ids,0.95,10,0.01,2);
+		};
+		setInfo(ids,mstr,bs);
+		prevAni=ids;
+	} else if(prevAni==ids){
+		if(ids.charAt(0)=="b"){
+			SVGAniSmall(ids,1,0,0.05,10,0.5);
+		} else {
+			SVGAniSmall(ids,1,0,0.01,2,0.95);
+		};
+		resetInfo();
+		prevAni="";
+	} else {
+		if(ids.charAt(0)=="b"){
+			SVGAniBig(ids,0.5,100,0.05,10);
+		} else {
+			SVGAniBig(ids,0.95,10,0.01,2);
+		};
+		if(prevAni.charAt(0)=="b"){
+			SVGAniSmall(prevAni,1,0,0.05,10,0.5);
+		} else {
+			SVGAniSmall(prevAni,1,0,0.01,2,0.95);
+		};
+		setInfo(ids,mstr,bs);
+		prevAni=ids;
+	};
+};
+function slceOvr(id,clr){
+	document.getElementById(id).setAttributeNS(null,"fill","#"+clr);
+};
+function slceOut(id,clr){
+	document.getElementById(id).setAttributeNS(null,"fill",clr);
+};
+function slceOvrVML(id,clr){
+	document.getElementById(id).fillcolor="#"+clr;
+};
+function slceOutVML(id,clr){
+	document.getElementById(id).fillcolor="#"+clr;
+};
+function formatMoney(m){
+	var fVal="";
+	if(parseInt(m)>999999999.99){
+		fVal="$"+m.slice(-15,-12)+","+m.slice(-12,-9)+","+m.slice(-9,-6)+","+m.slice(-6);
+	} else if (parseInt(m)>999999.99){
+		fVal="$"+m.slice(-12,-9)+","+m.slice(-9,-6)+","+m.slice(-6);
+	} else if (parseInt(m)>999.99){
+		fVal="$"+m.slice(-9,-6)+","+m.slice(-6);
+	} else if (parseInt(m)>0){
+		fVal="$"+m.slice(-6);
+	} else {
+		fVal=0;
+	};
+	return fVal;
+};
+function formatHoldings(sh,bh){
+	var fHol=Math.round((parseInt(sh)/parseInt(bh))*10000)/100;
+	return fHol;
+};
+function createHoldingInfo(a,b,c,d,clckid,bs,bwsr){
+	var chrtData=document.getElementById(a);
+	var hTitle=document.createElement("div");
+	hTitle.className=b;
+	hTitle.id=d;
+	if(browserDetect()=="VML"){
+		hTitle.onclick=function(){slceActVML(clckid,a,bs)};
+	} else if(browserDetect()=="SVG"){
+		hTitle.onclick=function(){slceActv(clckid,a,bs)};
+	};
+	var hTitleTxt=document.createTextNode(c);
+	hTitle.appendChild(hTitleTxt);
+	chrtData.appendChild(hTitle);
+};
+function resetInfo(){
+	document.getElementById("bequityIDData").style.display="block";
+	document.getElementById("bfixedincomeIDData").style.display="block";
+	document.getElementById("bcashIDData").style.display="block";
+	document.getElementById("balternativeIDData").style.display="block";
+	document.getElementById("equityIDSub").style.display="none";
+	document.getElementById("equityIDHldng").style.display="none";
+	document.getElementById("fixedincomeIDSub").style.display="none";
+	document.getElementById("fixedincomeIDHldng").style.display="none";
+	document.getElementById("cashIDSub").style.display="none";
+	document.getElementById("cashIDHldng").style.display="none";
+	document.getElementById("alternativeIDSub").style.display="none";
+	document.getElementById("alternativeIDHldng").style.display="none";
+};
+function setInfo(ids,mstr,bs){
+	document.getElementById("bequityIDData").style.display="none";
+	document.getElementById("bfixedincomeIDData").style.display="none";
+	document.getElementById("bcashIDData").style.display="none";
+	document.getElementById("balternativeIDData").style.display="none";
+	infoFadeIn(mstr);
+	document.getElementById("equityIDSub").style.display="none";
+	document.getElementById("equityIDHldng").style.display="none";
+	document.getElementById("fixedincomeIDSub").style.display="none";
+	document.getElementById("fixedincomeIDHldng").style.display="none";
+	document.getElementById("cashIDSub").style.display="none";
+	document.getElementById("cashIDHldng").style.display="none";
+	document.getElementById("alternativeIDSub").style.display="none";
+	document.getElementById("alternativeIDHldng").style.display="none";
+	if(mstr=="bequityIDData" || mstr=="equityIDSub" || mstr=="equityIDHldng"){
+		infoFadeIn("bequityIDData");
+		infoFadeIn("equityIDSub");
+		infoFadeIn("equityIDHldng");
+		infoLoop("equityIDSub","equityIDHldng","block");
+		if(bs=="small"){
+			infoLoop("equityIDSub","equityIDHldng","none");
+			infoFadeIn(ids+"Info");
+			infoFadeIn(ids+"Holding");
+		};
+	}else if(mstr=="bfixedincomeIDData" || mstr=="fixedincomeIDSub" || mstr=="fixedincomeIDHldng"){
+		infoFadeIn("bfixedincomeIDData");
+		infoFadeIn("fixedincomeIDSub");
+		infoFadeIn("fixedincomeIDHldng");
+		infoLoop("fixedincomeIDSub","fixedincomeIDHldng","block");
+		if(bs=="small"){
+			infoLoop("fixedincomeIDSub","fixedincomeIDHldng","none");
+			infoFadeIn(ids+"Info");
+			infoFadeIn(ids+"Holding");
+		};
+	}else if(mstr=="bcashIDData" || mstr=="cashIDSub" || mstr=="cashIDHldng"){
+		infoFadeIn("bcashIDData");
+		infoFadeIn("cashIDSub");
+		infoFadeIn("cashIDHldng");
+		infoLoop("cashIDSub","cashIDHldng","block");
+		if(bs=="small"){
+			infoLoop("cashIDSub","cashIDHldng","none");
+			infoFadeIn(ids+"Info");
+			infoFadeIn(ids+"Holding");
+		};
+	}else if(mstr=="balternativeIDData" || mstr=="alternativeIDSub" || mstr=="alternativeIDHldng"){
+		infoFadeIn("balternativeIDData");
+		infoFadeIn("alternativeIDSub");
+		infoFadeIn("alternativeIDHldng");
+		infoLoop("alternativeIDSub","alternativeIDHldng","block");
+		if(bs=="small"){
+			infoLoop("alternativeIDSub","alternativeIDHldng","none");
+			infoFadeIn(ids+"Info");
+			infoFadeIn(ids+"Holding");
+		};
+	};
+};
+function infoFadeIn(itm){
+	document.getElementById(itm).style.display="block";
+	document.getElementById(itm).style.opacity=0;
+	var opMaster=0;
+	var infoFade=setInterval(function(){
+		opMaster+=0.02;
+		document.getElementById(itm).style.opacity=opMaster;
+		if (document.getElementById(itm).style.opacity==1){
+			clearInterval(infoFade);
+		};
+	}, 10);
+};
+function infoLoop(a,b,c){
+	for(nmb=1;nmb<document.getElementById(a).getElementsByTagName("div").length;nmb++){
+		document.getElementById(a).getElementsByTagName("div")[nmb].style.display=c;
+		document.getElementById(b).getElementsByTagName("div")[nmb].style.display=c;
+	};
+};
+</script>
+<style>
+v\: * { behavior:url(#default#VML); display:inline-block }
+#pieText {
+	font-family: Arial, Helvetica, sans-serif;
+}
+.equity {
+	color: #076cba;
+	padding:0px 0px 0px 0px;
+}
+.fixedincome {
+	color: #f46b2d;
+	padding:0px 0px 0px 0px;
+}
+.cash {
+	color: #4b962b;
+	padding:0px 0px 0px 0px;
+}
+.alternative {
+	color: #d6b553;
+	padding:0px 0px 0px 0px;
+	
+}
+.Htop {
+	font-weight:bold;
+	font-size:16px;
+	margin:10px 0px 0px 0px;
+	CURSOR: pointer;
+}
+.Htop:hover {
+	background-color:#F0F0F0;
+	CURSOR: pointer;
+}
+.Hmid {
+	font-size:14px;
+	margin:0px 0px 10px 0px;
+}
+.Hmid:hover {
+	background-color:#F0F0F0;
+	CURSOR: pointer;
+}
+.HsmallT {
+	font-size:12px;
+	padding:0px 0px 3px 0px;
+}
+.Hsmall {
+	font-size:12px;
+	padding:0px 0px 3px 0px;
+}
+.Hsmall:hover {
+	background-color:#F0F0F0;
+	CURSOR: pointer;
+}
+</style>
+</head>
+<body onload="buidPieGraph();">
+<div style="width:610px; border:1px solid black;float:left;">
+  <div id="pieGraph" style="width:400px; margin:10px 0px 0px 10px; float:left;"></div>
+  <div id="pieText" style="width:175px; margin:0px 0px 0px 10px; float:left;">
+	<div id="bequityIDData" class="equity"></div>
+    <div id="equityIDSub" class="equity" style="display:none;">
+    	<div class="HsmallT" style="font-weight:bold;">Equity Holdings are:</div>
+    </div>
+    <div id="equityIDHldng" class="equity" style="display:none;">
+    	<div class="HsmallT" style="font-weight:bold;">Total Holdings are:</div>
+    </div>
+    <div id="bfixedincomeIDData" class="fixedincome"></div>
+    <div id="fixedincomeIDSub" class="fixedincome" style="display:none;">
+    	<div class="HsmallT" style="font-weight:bold;">Fixed Income Holdings are:</div>
+    </div>
+    <div id="fixedincomeIDHldng" class="fixedincome" style="display:none;">
+    	<div class="HsmallT" style="font-weight:bold;">Total Holdings are:</div>
+    </div>
+    <div id="bcashIDData" class="cash"></div>
+    <div id="cashIDSub" class="cash" style="display:none;">
+    	<div class="HsmallT" style="font-weight:bold;">Cash Holdings are:</div>
+    </div>
+    <div id="cashIDHldng" class="cash" style="display:none;">
+    	<div class="HsmallT" style="font-weight:bold;">Total Holdings are:</div>
+    </div>
+    <div id="balternativeIDData" class="alternative"></div>
+    <div id="alternativeIDSub" class="alternative" style="display:none;">
+    	<div class="HsmallT" style="font-weight:bold;">Alternative Holdings are:</div>
+    </div>
+    <div id="alternativeIDHldng" class="alternative" style="display:none;">
+    	<div class="HsmallT" style="font-weight:bold;">Total Holdings are:</div>
+    </div>
+  </div>
+</div>
+</body>
+</html>
